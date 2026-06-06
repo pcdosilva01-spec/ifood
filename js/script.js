@@ -295,11 +295,6 @@ const CookieModule = {
 
 CookieModule.init();
 
-window.addEventListener("load", () => {
-  const overlay = document.getElementById("location-overlay");
-  if (overlay) overlay.style.display = "flex";
-});
-
 // Modal de link externo
 const linkOverlay = document.getElementById("link-overlay");
 if (linkOverlay) {
