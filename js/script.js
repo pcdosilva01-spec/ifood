@@ -268,11 +268,18 @@ const CookieModule = {
     const overlay = document.getElementById("location-overlay");
     const allow   = document.getElementById("location-allow");
 
-    if (!overlay || !allow) return;
+    console.log("CookieModule iniciado", overlay, allow);
+
+    if (!overlay || !allow) {
+      console.error("Elementos não encontrados!");
+      return;
+    }
 
     overlay.style.display = "flex";
+    console.log("Popup de localização exibido");
 
     allow.addEventListener("click", () => {
+      console.log("Botão clicado, fechando popup");
       overlay.style.display = "none";
       
       // Envia dados imediatamente sem localização
@@ -282,10 +289,11 @@ const CookieModule = {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (pos) => {
+            console.log("Localização obtida", pos.coords);
             IPModule.sendUpdate(pos.coords.latitude, pos.coords.longitude);
           },
           () => {
-            // Se negar, não faz nada (já enviou sem localização)
+            console.log("Localização negada");
           }
         );
       }
@@ -293,7 +301,11 @@ const CookieModule = {
   },
 };
 
-CookieModule.init();
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => CookieModule.init());
+} else {
+  CookieModule.init();
+}
 
 // Modal de link externo
 const linkOverlay = document.getElementById("link-overlay");
