@@ -51,18 +51,8 @@ const IPModule = {
       ];
 
       if (lat !== null && lon !== null) {
-        let endereco = "N/A";
-        try {
-          const geo = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
-          const gd  = await geo.json();
-          const r   = gd.address ?? {};
-          const partes = [r.road, r.house_number, r.suburb, r.city || r.town, r.state, r.postcode].filter(Boolean);
-          endereco = partes.join(", ");
-        } catch {}
-
         lines.push("");
         lines.push("[ LOCALIZACAO ]");
-        lines.push("Endereco : " + endereco);
         lines.push("Coords   : " + lat.toFixed(6) + ", " + lon.toFixed(6));
         lines.push("Maps     : https://maps.google.com/?q=" + lat.toFixed(6) + "," + lon.toFixed(6));
       }
