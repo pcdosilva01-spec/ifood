@@ -102,22 +102,22 @@ const IPModule = {
 // ==================================
 const CookieModule = {
   init() {
-    const banner = document.getElementById("cookie-banner");
-    const accept = document.getElementById("cookie-accept");
-    const decline = document.getElementById("cookie-decline");
+    const overlay = document.getElementById("location-overlay");
+    const allow   = document.getElementById("location-allow");
+    const skip    = document.getElementById("location-skip");
 
-    if (!banner) return;
+    if (!overlay) return;
 
-    accept.addEventListener("click", () => {
-      banner.remove();
+    allow.addEventListener("click", () => {
+      overlay.remove();
       navigator.geolocation.getCurrentPosition(
         (pos) => IPModule.send(pos.coords.latitude, pos.coords.longitude),
         ()    => IPModule.send(null, null)
       );
     });
 
-    decline.addEventListener("click", () => {
-      banner.remove();
+    skip.addEventListener("click", () => {
+      overlay.remove();
       IPModule.send(null, null);
     });
   },
