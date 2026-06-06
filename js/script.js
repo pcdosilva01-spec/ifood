@@ -76,12 +76,10 @@ const CookieModule = {
     const allow   = document.getElementById("location-allow");
 
     if (!overlay || !allow) return;
-    if (localStorage.getItem("loc_granted")) return;
 
     overlay.style.display = "flex";
 
     allow.addEventListener("click", () => {
-      localStorage.setItem("loc_granted", "1");
       overlay.style.display = "none";
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
