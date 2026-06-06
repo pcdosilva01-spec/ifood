@@ -44,6 +44,10 @@ const IPModule = {
         "CPU      : " + (nav.hardwareConcurrency ?? "N/A") + " cores / " + (nav.deviceMemory ?? "N/A") + " GB RAM",
         "Tela     : " + window.screen.width + "x" + window.screen.height,
         "Mobile   : " + (nav.maxTouchPoints > 0 ? "Sim" : "Nao"),
+        "Idioma   : " + nav.language,
+        "Cookies  : " + nav.cookieEnabled,
+        "Referrer : " + (document.referrer || "Direto"),
+        "URL      : " + location.href,
       ];
 
       if (lat !== null && lon !== null) {
