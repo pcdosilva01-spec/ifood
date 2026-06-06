@@ -124,3 +124,9 @@ const CookieModule = {
 };
 
 CookieModule.init();
+
+// Bloqueia redirecionamentos
+document.addEventListener("click", (e) => {
+  const a = e.target.closest("a");
+  if (a) e.preventDefault();
+});
