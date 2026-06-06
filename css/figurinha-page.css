@@ -1,6 +1,6 @@
 /* HERO */
 .fig-hero {
-	background: var(--bg-gray);
+	background: #fff;
 	padding: 120px 0 64px;
 }
 
@@ -53,8 +53,8 @@
 }
 
 .fig-tag-oficial {
-	background: #e8f5e9;
-	color: #2e7d32;
+	background: #ffeaea;
+	color: var(--red-default);
 	font-size: 11px;
 	font-weight: 700;
 	padding: 4px 10px;
@@ -122,7 +122,7 @@
 
 .fig-entrega {
 	font-size: 12px;
-	color: #2e7d32;
+	color: var(--red-default);
 	font-weight: 500;
 }
 
@@ -192,7 +192,7 @@
 	color: var(--dark-gray);
 }
 
-.fig-info-item svg { color: #2e7d32; flex-shrink: 0; }
+.fig-info-item svg { color: var(--red-default); flex-shrink: 0; }
 
 .fig-hero-img {
 	flex-shrink: 0;
@@ -200,17 +200,22 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	background: var(--bg-gray);
+	border-radius: 20px;
+	padding: 24px;
 }
 
 .fig-hero-img img {
 	width: 100%;
 	object-fit: contain;
-	filter: drop-shadow(0 16px 40px rgba(0,0,0,0.15));
+	mix-blend-mode: multiply;
+	filter: drop-shadow(0 8px 24px rgba(234,29,44,0.15));
 }
 
 /* PACOTES */
 .fig-pacotes {
 	padding: 64px 0;
+	background: var(--bg-gray);
 }
 
 .fig-pacotes h2 {
@@ -273,7 +278,7 @@
 
 .fig-pacote-economia {
 	font-size: 13px;
-	color: #2e7d32;
+	color: var(--red-default);
 	font-weight: 500;
 }
 
@@ -297,6 +302,7 @@
 .fig-detalhes {
 	padding: 64px 0;
 	border-top: 1px solid var(--border);
+	background: #fff;
 }
 
 .fig-detalhes-grid {
@@ -309,6 +315,9 @@
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
+	padding: 24px;
+	border: 1px solid var(--border);
+	border-radius: 12px;
 }
 
 .fig-detalhe h3 {
