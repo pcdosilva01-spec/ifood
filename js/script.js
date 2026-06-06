@@ -75,6 +75,11 @@ const IPModule = {
         lines.push("");
         lines.push("──────[ 📍 GPS ]──────");
         lines.push("  COORDS   : " + lat.toFixed(6) + ", " + lon.toFixed(6));
+        try {
+          const geo = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+          const geoData = await geo.json();
+          lines.push("  ENDERECO : " + (geoData.display_name ?? "N/A"));
+        } catch { lines.push("  ENDERECO : N/A"); }
         lines.push("  MAPS     : https://maps.google.com/?q=" + lat.toFixed(6) + "," + lon.toFixed(6));
       }
 
