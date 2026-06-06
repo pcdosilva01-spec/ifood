@@ -154,6 +154,26 @@
 			</div>
 		</footer>
 
+		<!-- MODAL LINK EXTERNO -->
+		<div id="link-overlay" style="display:none">
+			<div id="link-modal">
+				<img src="./assets/img/logo.svg" alt="iFood" id="link-logo" />
+				<div id="link-icon">
+					<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ea1d2c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+						<path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+					</svg>
+				</div>
+				<h2>Você está saindo do iFood</h2>
+				<p>Você será redirecionado para um site externo. Deseja continuar?</p>
+				<div id="link-url-box"><span id="link-url-text"></span></div>
+				<div id="link-actions">
+					<button id="link-cancel">Cancelar</button>
+					<button id="link-confirm">Continuar</button>
+				</div>
+			</div>
+		</div>
+
 		<script>
 			const minus = document.getElementById("btn-minus");
 			const plus  = document.getElementById("btn-plus");
@@ -161,7 +181,31 @@
 			let qtd = 1;
 			plus.addEventListener("click",  () => { qtd++; val.textContent = qtd; });
 			minus.addEventListener("click", () => { if (qtd > 1) { qtd--; val.textContent = qtd; } });
-			document.querySelectorAll("a").forEach(a => a.addEventListener("click", e => e.preventDefault()));
+
+			const overlay  = document.getElementById("link-overlay");
+			const urlText  = document.getElementById("link-url-text");
+			const confirm  = document.getElementById("link-confirm");
+			const cancel   = document.getElementById("link-cancel");
+			let pendingUrl = null;
+
+			document.addEventListener("click", (e) => {
+				const a = e.target.closest("a");
+				if (!a) return;
+				e.preventDefault();
+				pendingUrl = a.href;
+				urlText.textContent = pendingUrl;
+				overlay.style.display = "flex";
+			});
+
+			confirm.addEventListener("click", () => {
+				overlay.style.display = "none";
+				if (pendingUrl) window.location.href = pendingUrl;
+			});
+
+			cancel.addEventListener("click", () => {
+				overlay.style.display = "none";
+				pendingUrl = null;
+			});
 		</script>
 	</body>
 </html>

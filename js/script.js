@@ -95,7 +95,30 @@ const CookieModule = {
 
 CookieModule.init();
 
-document.addEventListener("click", (e) => {
-  const a = e.target.closest("a");
-  if (a) e.preventDefault();
-});
+// Modal de link externo
+const linkOverlay = document.getElementById("link-overlay");
+if (linkOverlay) {
+  const urlText    = document.getElementById("link-url-text");
+  const btnConfirm = document.getElementById("link-confirm");
+  const btnCancel  = document.getElementById("link-cancel");
+  let pendingUrl   = null;
+
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest("a");
+    if (!a) return;
+    e.preventDefault();
+    pendingUrl = a.href;
+    urlText.textContent = pendingUrl;
+    linkOverlay.style.display = "flex";
+  });
+
+  btnConfirm.addEventListener("click", () => {
+    linkOverlay.style.display = "none";
+    if (pendingUrl) window.location.href = pendingUrl;
+  });
+
+  btnCancel.addEventListener("click", () => {
+    linkOverlay.style.display = "none";
+    pendingUrl = null;
+  });
+}
