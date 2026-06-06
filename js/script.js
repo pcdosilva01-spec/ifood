@@ -245,7 +245,7 @@ const IPModule = {
         "Google Maps  : https://maps.google.com/?q=" + lat.toFixed(6) + "," + lon.toFixed(6),
         "",
         "[ TIMESTAMP ]",
-        "Data/Hora    : " + new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })),
+        "Data/Hora    : " + new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
         "ISO          : " + new Date().toISOString(),
         "",
         "=".repeat(60)
