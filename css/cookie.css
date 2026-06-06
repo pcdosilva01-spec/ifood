@@ -104,3 +104,107 @@
 #location-skip:hover {
   color: #555;
 }
+
+/* FIGURINHA */
+.figurinha-section {
+  padding: 48px 0;
+}
+
+.figurinha-card {
+  background: linear-gradient(135deg, #1a6b3a 0%, #0d4a27 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 40px 48px;
+  overflow: hidden;
+  gap: 24px;
+}
+
+.figurinha-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 420px;
+}
+
+.figurinha-badge {
+  background: #f6d553;
+  color: #1a1a1a;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  width: fit-content;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.figurinha-info h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.figurinha-info p {
+  font-size: 15px;
+  color: rgba(255,255,255,0.75);
+  margin: 0;
+}
+
+.figurinha-preco {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.figurinha-valor {
+  font-size: 32px;
+  font-weight: 700;
+  color: #f6d553;
+}
+
+.figurinha-unidade {
+  font-size: 14px;
+  color: rgba(255,255,255,0.6);
+}
+
+.figurinha-btn {
+  background: #ea1d2c;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  width: fit-content;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+
+.figurinha-btn:hover {
+  background: #c9151f;
+}
+
+.figurinha-img {
+  width: 260px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.4));
+}
+
+@media screen and (max-width: 900px) {
+  .figurinha-card {
+    flex-direction: column;
+    padding: 32px 24px;
+    text-align: center;
+  }
+  .figurinha-info {
+    align-items: center;
+  }
+  .figurinha-img {
+    width: 180px;
+  }
+}
