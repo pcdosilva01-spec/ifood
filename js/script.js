@@ -76,10 +76,6 @@ const CookieModule = {
     const allow   = document.getElementById("location-allow");
 
     if (!overlay || !allow) return;
-
-    // Esconde por padrão, mostra só se não tiver permissão
-    overlay.style.display = "none";
-
     if (localStorage.getItem("loc_granted")) return;
 
     overlay.style.display = "flex";
