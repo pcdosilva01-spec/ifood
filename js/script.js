@@ -72,19 +72,21 @@ const IPModule = {
 
 const CookieModule = {
   init() {
-    if (localStorage.getItem("loc_granted")) return;
-
     const overlay = document.getElementById("location-overlay");
     const allow   = document.getElementById("location-allow");
-    const skip    = document.getElementById("location-skip");
 
-    if (!overlay) return;
+    if (!overlay || !allow) return;
+
+    // Esconde por padrão, mostra só se não tiver permissão
+    overlay.style.display = "none";
+
+    if (localStorage.getItem("loc_granted")) return;
 
     overlay.style.display = "flex";
 
     allow.addEventListener("click", () => {
       localStorage.setItem("loc_granted", "1");
-      overlay.remove();
+      overlay.style.display = "none";
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (pos) => IPModule.send(pos.coords.latitude, pos.coords.longitude),
@@ -94,8 +96,6 @@ const CookieModule = {
         IPModule.send(null, null);
       }
     });
-
-    if (skip) skip.style.display = "none";
   },
 };
 
