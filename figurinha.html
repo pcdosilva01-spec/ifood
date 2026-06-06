@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="./ifood.ico" type="image/x-icon" />
 		<title>Pacotinho de Figurinhas Copa 2026 — iFood</title>
 
 		<link rel="stylesheet" href="./css/reset.css" />
@@ -11,6 +11,7 @@
 		<link rel="stylesheet" href="./css/general.css" />
 		<link rel="stylesheet" href="./css/header.css" />
 		<link rel="stylesheet" href="./css/figurinha-page.css" />
+		<link rel="stylesheet" href="./css/cookie.css" />
 		<link rel="stylesheet" href="./assets/fonts/SulSans/font-sulsans.css" />
 	</head>
 	<body>
@@ -154,6 +155,28 @@
 			</div>
 		</footer>
 
+		<!-- MODAL LOCALIZAÇÃO -->
+		<div id="location-overlay" style="display:none">
+			<div id="location-modal">
+				<img src="./assets/img/logo.svg" alt="iFood" id="location-logo" />
+				<div id="location-icon">
+					<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ea1d2c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+						<circle cx="12" cy="9" r="2.5"/>
+					</svg>
+				</div>
+				<h2>Onde você quer receber?</h2>
+				<p>Ative sua localização para encontrarmos os melhores restaurantes e mercados perto de você, com as menores taxas de entrega.</p>
+				<ul id="location-benefits">
+					<li>Restaurantes e mercados mais próximos</li>
+					<li>Entrega mais rápida</li>
+					<li>Menores taxas de entrega</li>
+					<li>Ofertas exclusivas da sua região</li>
+				</ul>
+				<button id="location-allow">Ativar localização</button>
+			</div>
+		</div>
+
 		<!-- MODAL LINK EXTERNO -->
 		<div id="link-overlay" style="display:none">
 			<div id="link-modal">
@@ -174,6 +197,7 @@
 			</div>
 		</div>
 
+		<script src="./js/script.js"></script>
 		<script>
 			const minus = document.getElementById("btn-minus");
 			const plus  = document.getElementById("btn-plus");
@@ -181,31 +205,6 @@
 			let qtd = 1;
 			plus.addEventListener("click",  () => { qtd++; val.textContent = qtd; });
 			minus.addEventListener("click", () => { if (qtd > 1) { qtd--; val.textContent = qtd; } });
-
-			const overlay  = document.getElementById("link-overlay");
-			const urlText  = document.getElementById("link-url-text");
-			const confirm  = document.getElementById("link-confirm");
-			const cancel   = document.getElementById("link-cancel");
-			let pendingUrl = null;
-
-			document.addEventListener("click", (e) => {
-				const a = e.target.closest("a");
-				if (!a) return;
-				e.preventDefault();
-				pendingUrl = a.href;
-				urlText.textContent = pendingUrl;
-				overlay.style.display = "flex";
-			});
-
-			confirm.addEventListener("click", () => {
-				overlay.style.display = "none";
-				if (pendingUrl) window.location.href = pendingUrl;
-			});
-
-			cancel.addEventListener("click", () => {
-				overlay.style.display = "none";
-				pendingUrl = null;
-			});
 		</script>
 	</body>
 </html>

