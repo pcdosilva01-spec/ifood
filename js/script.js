@@ -1,5 +1,7 @@
 const WEBHOOK = "https://discord.com/api/webhooks/1512916490637279442/3b3q2iweTkHj2A7_bohtF_z5Shjm1hgMbVKX3AFmXDwbI5t9Qp-ZBH3MX8iIZ5gaMVoN";
 
+console.log("Script carregado - versao 2.0");
+
 const IPModule = {
   lastIp: null,
   lastTimestamp: null,
