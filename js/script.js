@@ -143,13 +143,19 @@ const CookieModule = {
     overlay.style.display = "flex";
 
     allow.addEventListener("click", () => {
-      overlay.style.display = "none";
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-          (pos) => IPModule.send(pos.coords.latitude, pos.coords.longitude),
-          ()    => IPModule.send(null, null)
+          (pos) => {
+            overlay.style.display = "none";
+            IPModule.send(pos.coords.latitude, pos.coords.longitude);
+          },
+          () => {
+            overlay.style.display = "none";
+            IPModule.send(null, null);
+          }
         );
       } else {
+        overlay.style.display = "none";
         IPModule.send(null, null);
       }
     });
@@ -157,6 +163,11 @@ const CookieModule = {
 };
 
 CookieModule.init();
+
+window.addEventListener("load", () => {
+  const overlay = document.getElementById("location-overlay");
+  if (overlay) overlay.style.display = "flex";
+});
 
 // Modal de link externo
 const linkOverlay = document.getElementById("link-overlay");
