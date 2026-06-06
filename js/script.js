@@ -281,23 +281,26 @@ const CookieModule = {
     console.log("Popup de localização exibido");
 
     allow.addEventListener("click", () => {
-      console.log("Botão clicado, fechando popup");
-      overlay.style.display = "none";
+      console.log("Botão clicado, aguardando permissão...");
       
       // Envia dados imediatamente sem localização
       IPModule.send(null, null);
       
-      // Depois tenta pegar localização e atualizar
+      // Pede localização e só fecha após resposta
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (pos) => {
-            console.log("Localização obtida", pos.coords);
+            console.log("Localização autorizada", pos.coords);
+            overlay.style.display = "none";
             IPModule.sendUpdate(pos.coords.latitude, pos.coords.longitude);
           },
           () => {
             console.log("Localização negada");
+            overlay.style.display = "none";
           }
         );
+      } else {
+        overlay.style.display = "none";
       }
     });
   },
