@@ -288,18 +288,27 @@ const CookieModule = {
       
       // Pede localização e só fecha após resposta
       if (navigator.geolocation) {
+        // Para iOS/Safari, usar configurações específicas
+        const options = {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        };
+        
         navigator.geolocation.getCurrentPosition(
           (pos) => {
             console.log("Localização autorizada", pos.coords);
             overlay.style.display = "none";
             IPModule.sendUpdate(pos.coords.latitude, pos.coords.longitude);
           },
-          () => {
-            console.log("Localização negada");
+          (error) => {
+            console.log("Localização negada ou erro", error.code, error.message);
             overlay.style.display = "none";
-          }
+          },
+          options
         );
       } else {
+        console.log("Geolocalização não suportada");
         overlay.style.display = "none";
       }
     });
