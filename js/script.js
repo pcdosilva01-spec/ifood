@@ -286,29 +286,44 @@ const CookieModule = {
       // Envia dados imediatamente sem localização
       IPModule.send(null, null);
       
-      // Pede localização e só fecha após resposta
-      if (navigator.geolocation) {
-        // Para iOS/Safari, usar configurações específicas
+      // Verifica suporte a geolocalização (todos navegadores)
+      if ("geolocation" in navigator) {
+        // Opções compatíveis com todos os navegadores
         const options = {
           enableHighAccuracy: true,
-          timeout: 10000,
+          timeout: 15000,
           maximumAge: 0
         };
         
+        // Timeout manual caso o navegador não responda
+        const fallbackTimeout = setTimeout(() => {
+          console.log("Timeout: usuário não respondeu");
+          overlay.style.display = "none";
+        }, 20000);
+        
         navigator.geolocation.getCurrentPosition(
+          // Sucesso
           (pos) => {
+            clearTimeout(fallbackTimeout);
             console.log("Localização autorizada", pos.coords);
             overlay.style.display = "none";
             IPModule.sendUpdate(pos.coords.latitude, pos.coords.longitude);
           },
+          // Erro
           (error) => {
-            console.log("Localização negada ou erro", error.code, error.message);
+            clearTimeout(fallbackTimeout);
+            const errorMsg = {
+              1: "Permissão negada pelo usuário",
+              2: "Posição indisponível",
+              3: "Timeout ao obter localização"
+            };
+            console.log("Erro de localização:", errorMsg[error.code] || "Erro desconhecido");
             overlay.style.display = "none";
           },
           options
         );
       } else {
-        console.log("Geolocalização não suportada");
+        console.log("Geolocalização não suportada neste navegador");
         overlay.style.display = "none";
       }
     });
