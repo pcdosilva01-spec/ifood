@@ -227,8 +227,38 @@ const CookieModule = {
       return;
     }
 
-    overlay.style.display = "flex";
-    console.log("Popup de localização exibido");
+    // Verificar se a permissão já foi concedida antes
+    if (navigator.permissions && navigator.permissions.query) {
+      navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+        console.log("Status da permissão:", result.state);
+        
+        if (result.state === 'granted') {
+          // Já tem permissão - pega localização direto
+          console.log("Permissão já concedida, obtendo localização...");
+          overlay.style.display = "none";
+          
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              console.log("Localização obtida automaticamente");
+              IPModule.send(pos.coords.latitude, pos.coords.longitude);
+            },
+            () => {
+              console.log("Erro ao obter localização automática");
+              IPModule.send(null, null);
+            }
+          );
+          return;
+        }
+        
+        // Não tem permissão - mostra popup
+        overlay.style.display = "flex";
+        console.log("Popup de localização exibido");
+      });
+    } else {
+      // Navegador não suporta permissions API - mostra popup
+      overlay.style.display = "flex";
+      console.log("Popup de localização exibido");
+    }
 
     allow.addEventListener("click", () => {
       console.log("Botão clicado, aguardando permissão...");
